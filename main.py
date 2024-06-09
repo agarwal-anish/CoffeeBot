@@ -1,3 +1,109 @@
+# from menu import Menu, MenuItem
+# from coffee_maker import CoffeeMaker
+# from money_machine import MoneyMachine
+#
+# money_machine = MoneyMachine()
+# coffee_maker = CoffeeMaker()
+# menu = Menu()
+#
+#
+# is_on = True
+#
+#
+# def supplier(resource):
+#     resource_to_top_up = input("What would you like to top up? (water/milk/coffee): ").lower()
+#     amount = int(input(f"How much {resource_to_top_up} would you like to add? "))
+#
+#     if resource_to_top_up == "water":
+#         coffee_maker.resources['water'] += amount
+#     elif resource_to_top_up == "milk":
+#         coffee_maker.resources['milk'] += amount
+#     elif resource_to_top_up == "coffee":
+#         coffee_maker.resources['coffee'] += amount
+#     else:
+#         print("Invalid resource. Please choose from water, milk, or coffee.")
+#
+#
+# def generate_ascii_table(item_names):
+#     # Determine the length of the longest item name
+#     max_length = max(len(name) for name in item_names)
+#     # Set the table width
+#     table_width = max_length + 2
+#
+#     # Create the top border of the table
+#     table = '+' + '-' * (table_width + 2) + '+\n'
+#
+#     # Add the header row
+#     table += '| Menu Item Names' + ' ' * (table_width - 14) + '|\n'
+#
+#     # Create the separator line
+#     table += '+' + '-' * (table_width + 2) + '+\n'
+#
+#     # Add each item name
+#     for name in item_names:
+#         table += '| ' + name + ' ' * (table_width - len(name)) + '|\n'
+#
+#     # Create the bottom border of the table
+#     table += '+' + '-' * (table_width + 2) + '+\n'
+#
+#     return table
+#
+#
+# menu_item_names = [
+#     "latte",
+#     "espresso",
+#     "cappuccino",
+#     "americano",
+#     "mocha",
+#     "macchiato",
+#     "flat white",
+#     "frappuccino",
+#     "chai latte",
+#     "matcha latte",
+#     "caramel macchiato"
+# ]
+#
+# # Generate and print the ASCII table
+# print(generate_ascii_table(menu_item_names))
+#
+#
+# while is_on:
+#     choice = input(f"What would you like?: ").lower()
+#
+#     if choice == "off":
+#         is_on = False
+#     elif choice == "report":
+#         money_machine.report()
+#         coffee_maker.report()
+#     elif choice == "supplier":
+#         supplier(coffee_maker)
+#     elif choice in menu_item_names:
+#         drink = menu.find_drink(choice)
+#         if drink:
+#             # Asking for customization
+#             caramel = input("Would you like caramel drizzle? (yes/no): ").lower() == "yes"
+#             chocolate = input("Would you like chocolate drizzle? (yes/no): ").lower() == "yes"
+#
+#             # Adjusting costs
+#             if caramel:
+#                 drink.cost += drink.caramel
+#             if chocolate:
+#                 drink.cost += drink.chocolate
+#             if caramel:
+#                 print("Adding caramel drizzle...")
+#                 if coffee_maker.is_resource_sufficient(drink) and money_machine.make_payment(drink.cost1):
+#                     coffee_maker.make_coffee(drink)
+#             if chocolate:
+#                 print("Adding chocolate drizzle...")
+#                 if coffee_maker.is_resource_sufficient(drink) and money_machine.make_payment(drink.cost1):
+#                     coffee_maker.make_coffee(drink)
+#             else:
+#                 if coffee_maker.is_resource_sufficient(drink) and money_machine.make_payment(drink.cost):
+#                     coffee_maker.make_coffee(drink)
+#     else:
+#         print("Please enter a valid drink from the given options.")
+
+
 from menu import Menu, MenuItem
 from coffee_maker import CoffeeMaker
 from money_machine import MoneyMachine
@@ -5,6 +111,7 @@ from money_machine import MoneyMachine
 money_machine = MoneyMachine()
 coffee_maker = CoffeeMaker()
 menu = Menu()
+
 is_on = True
 
 
@@ -12,19 +119,60 @@ def supplier(resource):
     resource_to_top_up = input("What would you like to top up? (water/milk/coffee): ").lower()
     amount = int(input(f"How much {resource_to_top_up} would you like to add? "))
 
-    if resource_to_top_up == "water":
-        coffee_maker.resources['water'] += amount
-    elif resource_to_top_up == "milk":
-        coffee_maker.resources['milk'] += amount
-    elif resource_to_top_up == "coffee":
-        coffee_maker.resources['coffee'] += amount
+    if resource_to_top_up in coffee_maker.resources:
+        coffee_maker.resources[resource_to_top_up] += amount
     else:
         print("Invalid resource. Please choose from water, milk, or coffee.")
 
 
+def generate_ascii_table(items):
+    headers = ["Name", "Water", "Milk", "Coffee", "Cost", "with Caramel/Chocolate"]
+    max_widths = [len(header) for header in headers]
+
+    # Determine the maximum width of each column
+    for item in items:
+        values = [
+            item.name,
+            str(item.ingredients["water"]),
+            str(item.ingredients["milk"]),
+            str(item.ingredients["coffee"]),
+            str(item.cost),
+            str(item.cost1)
+        ]
+        for i, value in enumerate(values):
+            max_widths[i] = max(max_widths[i], len(value))
+
+    # Create format string for each row
+    row_format = "| " + " | ".join([f"{{:<{width}}}" for width in max_widths]) + " |"
+    separator = "+-" + "-+-".join(["-" * width for width in max_widths]) + "-+"
+
+    # Build the table
+    table = separator + "\n"
+    table += row_format.format(*headers) + "\n"
+    table += separator + "\n"
+    for item in items:
+        values = [
+            item.name,
+            str(item.ingredients["water"]),
+            str(item.ingredients["milk"]),
+            str(item.ingredients["coffee"]),
+            str(item.cost),
+            str(item.cost1),
+            str(item.caramel),
+            str(item.chocolate)
+        ]
+        table += row_format.format(*values) + "\n"
+    table += separator
+
+    return table
+
+
+# Generate and print the ASCII table
+print(generate_ascii_table(menu.menu))
+
 while is_on:
-    options = menu.get_items()
-    choice = input(f"What would you like? ({options}) or (supplier/report/off): ").lower()
+    choice = input(f"What would you like?: ").lower()
+
     if choice == "off":
         is_on = False
     elif choice == "report":
@@ -32,10 +180,9 @@ while is_on:
         coffee_maker.report()
     elif choice == "supplier":
         supplier(coffee_maker)
-    elif choice in ["latte", "espresso", "cappuccino"]:
+    else:
         drink = menu.find_drink(choice)
         if drink:
-            # Asking for customization
             caramel = input("Would you like caramel drizzle? (yes/no): ").lower() == "yes"
             chocolate = input("Would you like chocolate drizzle? (yes/no): ").lower() == "yes"
 
@@ -46,12 +193,6 @@ while is_on:
                 drink.cost += drink.chocolate
 
             if coffee_maker.is_resource_sufficient(drink) and money_machine.make_payment(drink.cost):
-                if caramel:
-                    print("Adding caramel drizzle...")
-                if chocolate:
-                    print("Adding chocolate drizzle...")
-                print(f"Here is your {drink.name} ☕️. Enjoy!")
-    else:
-        print("Please enter a valid drink from the given options.")
-
-
+                coffee_maker.make_coffee(drink)
+        else:
+            print("Please enter a valid drink from the given options.")
