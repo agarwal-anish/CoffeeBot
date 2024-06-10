@@ -1,4 +1,5 @@
 
+
 from menu import Menu, MenuItem
 from coffee_maker import CoffeeMaker
 from money_machine import MoneyMachine
@@ -84,10 +85,8 @@ while is_on:
             # Adjusting costs
             if caramel:
                 drink.cost += drink.caramel
-                money_machine.make_payment(drink.cost1)
             if chocolate:
                 drink.cost += drink.chocolate
-                money_machine.make_payment(drink.cost)
 
             if coffee_maker.is_resource_sufficient(drink) and money_machine.make_payment(drink.cost):
                 coffee_maker.make_coffee(drink)
